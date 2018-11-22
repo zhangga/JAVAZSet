@@ -169,6 +169,7 @@ public class ZSet<E extends ZSetEle<K>, K> {
 	
 	/**
 	 * 查找附近的元素
+	 * 找到所有可能的，需要在外层再判断实际距离和radius是否满足
 	 * @param x
 	 * @param y
 	 * @param radius
