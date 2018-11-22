@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentSkipListMap;
+
+import org.jow.core.support.log.LogCore;
 
 /**
  * Redis zset主要功能的JAVA实现
@@ -122,7 +123,14 @@ public class ZSet<E extends ZSetEle<K>, K> {
 	 * @return
 	 */
 	public List<E> rangeByScore(long min, long max) {
-		List<E> list = new ArrayList<>();
+		return rangeByScore(min, max, null);
+	}
+	
+	public List<E> rangeByScore(long min, long max, List<E> list) {
+		if (list == null) {
+			list = new ArrayList<>();
+		}
+		
 		if (min > max) {
 			return list;
 		}
@@ -157,6 +165,73 @@ public class ZSet<E extends ZSetEle<K>, K> {
 			return true;
 		}
 		return list.remove(ele);
+	}
+	
+	/**
+	 * 查找附近的元素
+	 * @param x
+	 * @param y
+	 * @param radius
+	 */
+	public List<E> georadius(double x, double y, double radius) {
+		// 通过中心和半径，获取要搜索的所有区域
+		ZSets.GeoArea area = ZSets.geohashGetAreasByRadius(x, y, radius);
+		if (ZSets.DEBUG_MSG) {
+			LogCore.temp.debug(area.toString());
+		}
+		
+		List<E> members = new ArrayList<>();
+		
+		long last_processed = -1;
+		// 逐个搜索区域
+		for (long geohash : area.geohashNeighbors) {
+			if (geohash == -1) {
+				continue;
+			}
+			// 调试信息
+			if (ZSets.DEBUG_MSG) {
+				printDebugMsg(geohash, area.steps);
+			}
+			
+			// 当radius超过一定范围后，会出现相同的区域，跳过。
+			if (last_processed == geohash) {
+				if (ZSets.DEBUG_MSG) {
+					LogCore.temp.debug("Skipping processing of geohash: " + geohash + ", same as previous");
+				}
+				continue;
+			}
+			// 搜索区域在zset中的成员
+			membersOfGeoHashBox(geohash, area.steps, members);
+			last_processed = geohash;
+		}
+		
+		return members;
+	}
+	
+	/**
+	 * 获得该区域中，在zset内的成员
+	 * @param geohash
+	 * @param step
+	 * @param members
+	 */
+	private void membersOfGeoHashBox(long geohash, int step, List<E> members) {
+		// 获得区域hash对应的zset score的最小值和最大值
+		long[] scores = ZSets.scoresOfGeoHashBox(geohash, step);
+		members = rangeByScore(scores[0], scores[1], members);
+	}
+	
+	/**
+	 * 打印调试信息
+	 * @param geohash
+	 * @param steps
+	 */
+	private void printDebugMsg(long geohash, int steps) {
+		double[] area = ZSets.geohashDecode(geohash, steps);
+		LogCore.temp.debug("=========area info=========");
+		LogCore.temp.debug("area.x_min: " + area[0]);
+		LogCore.temp.debug("area.x_max: " + area[1]);
+		LogCore.temp.debug("area.y_min: " + area[2]);
+		LogCore.temp.debug("area.y_max: " + area[3]);
 	}
 
 }
