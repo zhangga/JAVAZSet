@@ -1,15 +1,8 @@
-package org.jow.worldsrv.support.pathFinding;
+package com.yiba.support.pathFinding;
 
 import java.util.List;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.jow.common.support.Vector2D;
-import org.jow.common.support.Vector3D;
-import org.jow.core.collect.ZSet;
-import org.jow.core.collect.ZSetEle;
-import org.jow.core.collect.ZSets;
-import org.jow.worldsrv.support.area.AbstractArea;
-import org.jow.worldsrv.support.area.EnumAreaType;
 
 /**
  * 障碍物

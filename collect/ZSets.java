@@ -1,4 +1,4 @@
-package org.jow.core.collect;
+package com.yiba.core.collect;
 
 import java.util.ArrayList;
 import java.util.List;

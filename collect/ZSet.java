@@ -1,12 +1,10 @@
-package org.jow.core.collect;
+package com.yiba.core.collect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.jow.core.support.log.LogCore;
 
 /**
  * Redis zset主要功能的JAVA实现

@@ -1,4 +1,4 @@
-package org.jow.core.collect;
+package com.yiba.core.collect;
 
 /**
  * Sorted set API flags.
